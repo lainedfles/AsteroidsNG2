@@ -20,7 +20,7 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
-        screen.fill((0, 0, 0))
+        screen.fill(pygame.Color("black"))
 
         player.update(dt)
         player.draw(screen)
