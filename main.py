@@ -41,6 +41,11 @@ def main():
         for draw in pygame_drawable:
             draw.draw(screen)
 
+        for asteroid in pygame_asteroids:
+            if player.collision(asteroid):
+                print(f"Game over!")
+                return
+
         pygame.display.flip()
 
         dt = pygame_clock.tick(60) / 1000
