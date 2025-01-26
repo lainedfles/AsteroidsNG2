@@ -20,7 +20,7 @@ class CircleShape(pygame.sprite.Sprite):
             return True
         return False
 
-    def draw(self, screen):
+    def draw(self, screen, enable_graphics):
         # sub-classes must override
         pass
 
