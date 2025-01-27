@@ -1,17 +1,17 @@
-import base64
 import pygame
 import math
 import random
 from player import Player
 from circleshape import CircleShape
 from constants import *
-from imagedata import ASTEROID_IMAGES
-from io import BytesIO
 
 class Asteroid(CircleShape):
     asteroids = []
-    for i in range(0, len(ASTEROID_IMAGES)):
-        asteroids.append(pygame.image.load(BytesIO(base64.b64decode(ASTEROID_IMAGES[i]))))
+    asteroid_images = ["img/asteroid1_60.png",
+                       "img/asteroid2_60.png",
+                       "img/asteroid3_60.png"]
+    for i in range(0, len(asteroid_images)):
+        asteroids.append(pygame.image.load(asteroid_images[i]))
 
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
@@ -55,4 +55,6 @@ class Asteroid(CircleShape):
         split2a.velocity = pygame.Vector2(self.velocity).rotate(-random_angle) * 1.2
 
     def update(self, dt):
+        self.position.x %= SCREEN_WIDTH
+        self.position.y %= SCREEN_HEIGHT
         self.position += self.velocity * dt

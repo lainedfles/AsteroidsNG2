@@ -1,36 +1,42 @@
 #!/usr/bin/env python3
 
-import base64
+import asyncio
 import pygame
 from constants import *
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
-from audiodata import MUSIC, EXPLOSION
-from imagedata import BACKGROUND_IMAGE
-from io import BytesIO
 from player import Player
 from shot import Shot
 
-def main():
-    # Global vars
-    enable_background = enable_graphics = enable_music = enable_sounds = True
-    enable_help = game_over = music_playing = pause_game = False
+# Global vars
+enable_background = enable_graphics = enable_music = enable_sounds = True
+enable_help = game_over = music_playing = pause_game = paused = False
+game_name = f"AsteroidsNG2"
 
+async def main():
     dt = 0
     high_score = 0
+    old_high_score = 0
     score = 0
+    old_score = 0
+
+    global enable_background, enable_graphics, enable_music, enable_sounds
+    global enable_help, game_over, music_playing, pause_game, paused, game_name
 
     pygame.init()
     pygame.mixer.init(11025)
+    pygame.display.set_icon(pygame.image.load("img/favicon.png"))
+    pygame.display.set_caption(game_name)
 
     asteroids = pygame.sprite.Group()
-    background = pygame.image.load(BytesIO(base64.b64decode(BACKGROUND_IMAGE)))
+    background_image = pygame.image.load("img/asteroids_background.jpg")
     clock = pygame.time.Clock()
     drawable = pygame.sprite.Group()
-    explosion = pygame.mixer.Sound(BytesIO(base64.b64decode(EXPLOSION)))
-    music = pygame.mixer.music.load(BytesIO(base64.b64decode(MUSIC)))
+    explosion = pygame.mixer.Sound("sfx/ExploLowFireDest SDT2021805.ogg")
+    music = pygame.mixer.music.load("sfx/Short Space Casual Loop #3.ogg")
     updatable = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    ship_explosion = pygame.mixer.Sound("sfx/ExploSciFiPipeEx SDT2020802.ogg")
 
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
@@ -40,13 +46,14 @@ def main():
     asteroidfield = AsteroidField()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.mixer.Sound.set_volume(explosion, 0.5)
+    pygame.mixer.Sound.set_volume(explosion, 0.35)
+    pygame.mixer.Sound.set_volume(ship_explosion, 0.35)
 
 
-    print("Starting asteroids!")
+    print(f"Starting {game_name}!")
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
-    print("Press 'CTRL + q' to exit...")
+    print("Press 't' to terminate (exit)...")
 
     def display_text(input1, input2=[]):
         blits = []
@@ -75,6 +82,45 @@ def main():
 
         screen.blits(blits)
 
+    def display_hud():
+        blits = []
+        font_size = 40
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_size, bold=False)
+        text = pygame.font.Font.render(font, f"High Score: {high_score}", True, pygame.Color("darkorange"))
+        rect = text.get_rect()
+        rect.x, rect.y = (0, 0)
+        blits.append((text, rect))
+
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_size, bold=True)
+        text = pygame.font.Font.render(font, f"{game_name}", True, pygame.Color("darkgrey"))
+        rect = text.get_rect()
+        rect.centerx, rect.y = ((SCREEN_WIDTH / 2), 0)
+        blits.append((text, rect))
+
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_size, bold=False)
+        text = pygame.font.Font.render(font, f"Current Score: {score}", True, pygame.Color("darkgreen"))
+        rect = text.get_rect()
+        rect.right, rect.y = (SCREEN_WIDTH, 0)
+        blits.append((text, rect))
+
+        screen.blits(blits)
+
+    def display_footer():
+        blits = []
+        font_size = 30
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_size, bold=False)
+        text = pygame.font.Font.render(font, f"Press 'h' for help", True, pygame.Color("darkred"))
+        rect = text.get_rect()
+        rect.x, rect.bottom = (0, SCREEN_HEIGHT)
+        blits.append((text, rect))
+
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_size, bold=False)
+        text = pygame.font.Font.render(font, f"Press 'g' for a retro look", True, pygame.Color("darkred"))
+        rect = text.get_rect()
+        rect.right, rect.bottom = (SCREEN_WIDTH, SCREEN_HEIGHT)
+        blits.append((text, rect))
+
+        screen.blits(blits)
 
     while True:
         for event in pygame.event.get():
@@ -87,25 +133,37 @@ def main():
                 if keys[pygame.K_g]:
                     enable_graphics = not enable_graphics
                     enable_background = enable_graphics
-                if keys[pygame.K_m]:
-                    enable_music = not enable_music
-                    if not enable_music:
-                        pygame.mixer.music.stop()
-                        music_playing = False
-                if not keys[pygame.K_LCTRL] and keys[pygame.K_n]:
-                    enable_sounds = not enable_sounds
-                    Player.enable_sounds = enable_sounds
-                    if not enable_background:
-                        pygame.mixer.stop()
-                if keys[pygame.K_p]:
+                if keys[pygame.K_h]:
                     pause_game = not pause_game
+                    enable_help = pause_game
                     if pause_game:
                         pygame.mixer.music.pause()
                         pygame.mixer.pause()
                     else:
                         pygame.mixer.music.unpause()
                         pygame.mixer.unpause()
-                if keys[pygame.K_LCTRL] and keys[pygame.K_n]:
+                if keys[pygame.K_m]:
+                    enable_music = not enable_music
+                    if not enable_music:
+                        pygame.mixer.music.stop()
+                        music_playing = False
+                if keys[pygame.K_k]:
+                    enable_sounds = not enable_sounds
+                    Player.enable_sounds = enable_sounds
+                    if not enable_background:
+                        pygame.mixer.stop()
+                if keys[pygame.K_p]:
+                    pause_game = not pause_game
+                    paused = pause_game
+                    if pause_game:
+                        pygame.mixer.music.pause()
+                        pygame.mixer.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                        pygame.mixer.unpause()
+                if keys[pygame.K_n]:
+                    old_score = score
+                    old_high_score = high_score
                     game_over = False
 
                     del asteroids, drawable, updatable
@@ -125,7 +183,7 @@ def main():
                     dt = 0
                     score = 0
                     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-                if keys[pygame.K_LCTRL] and keys[pygame.K_q]:
+                if keys[pygame.K_t]:
                     return
 
         screen.fill(pygame.Color("black"))
@@ -137,11 +195,11 @@ def main():
                 music_playing = True
 
         if enable_background:
-            screen.blit(background, (0, 0))
+            screen.blit(background_image, (0, 0))
             alpha = 200
             if pause_game or game_over:
                 alpha = 100
-            background.set_alpha(alpha)
+            background_image.set_alpha(alpha)
             screen.convert_alpha()
 
         if not pause_game:
@@ -151,10 +209,16 @@ def main():
         for draw in drawable:
             draw.draw(screen, enable_graphics)
 
+        display_hud()
+        display_footer()
+
         if not pause_game:
             for asteroid in asteroids:
-                if player.collision(asteroid):
+                if player.collision(asteroid) and player.alive():
+                    if enable_sounds:
+                        pygame.mixer.Sound.play(ship_explosion)
                     player.kill()
+                    asteroid.split()
                     game_over = True
 
                 for bullet in shots:
@@ -166,16 +230,32 @@ def main():
                             pygame.mixer.Sound.play(explosion)
                         asteroid.split()
                         bullet.kill()
-        else:                    
+        elif pause_game and paused:
             display_text(f"PAUSED", [f"Current score: {score}", f"High score: {high_score}"])
 
         if game_over and not pause_game:
-            display_text(f"GAME OVER!", [f"Current score: {score}",
-                                         f"High score: {high_score}",
-                                         f"",
-                                         f"Use 'CTRL + n' to begin a new game",
-                                         f"or",
-                                         f"'CTRL + q' to quit"])
+            score_status = [f"You've failed to reach the high score, try again!"]
+
+            if score > 0:
+                if high_score > old_high_score:
+                    score_status = []
+                    score_status.append(f"You've exceeded the high score, well done!")
+                if score > old_score:
+                    score_status.append(f"You've surpassed your previous score!")
+
+            display_text(f"GAME OVER!", score_status + [f"",
+                                                        f"Use the 'n' key to begin a new game",
+                                                        f"or",
+                                                        f"use the 't' key to terminate (exit) the game"])
+
+        if enable_help and not paused:
+            display_text(f"KEY CONTROLS", [f"b: toggle background image",
+                                           f"g: toggle graphics for a retro look",
+                                           f"h: display this screen",
+                                           f"m: toggle music",
+                                           f"k: toggle sound effects",
+                                           f"n: new game",
+                                           f"t: terminate (exit) game"])
 
         pygame.display.flip()
 
@@ -184,9 +264,11 @@ def main():
         else:
             dt = clock.tick(60) / 1000
 
+        await asyncio.sleep(0)
+
 
 try:
-    main()
+    asyncio.run(main())
 except IOError as e:
     if e.errno == errno.EPIPE:
         # Support pipeline

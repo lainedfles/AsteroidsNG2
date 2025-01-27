@@ -1,20 +1,16 @@
-import base64
 import pygame
-from audiodata import LASER
 from circleshape import CircleShape
 from constants import *
-from imagedata import SHIP_IMAGE
-from io import BytesIO
 from shot import Shot
 
 class Player(CircleShape):
     pygame.mixer.init(11025)
 
-    ship = pygame.image.load(BytesIO(base64.b64decode(SHIP_IMAGE)))
-    laser = pygame.mixer.Sound(BytesIO(base64.b64decode(LASER)))
+    ship = pygame.image.load("img/asteroids_ship_small.png")
+    laser = pygame.mixer.Sound("sfx/Sci-Fi-Laser_GEN-HD4-43659.ogg")
     enable_sounds = True
 
-    pygame.mixer.Sound.set_volume(laser, 0.5)
+    pygame.mixer.Sound.set_volume(laser, 0.35)
 
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
@@ -31,6 +27,8 @@ class Player(CircleShape):
             pygame.draw.polygon(screen, pygame.Color("red"), self.triangle(), 2)
         
     def move(self, dt):
+        self.position.x %= SCREEN_WIDTH
+        self.position.y %= SCREEN_HEIGHT
         self.position += pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SPEED * dt
 
     def rotate(self, dt):
