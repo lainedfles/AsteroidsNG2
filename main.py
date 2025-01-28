@@ -275,6 +275,7 @@ async def main():
                         if enable_sounds:
                             pygame.mixer.Sound.play(explosion_sfx)
                         Explosion(asteroid.position.x, asteroid.position.y)
+                        AsteroidField.asteroid_count -= 1
                         asteroid.split()
                         bullet.kill()
         elif pause_game and paused:
