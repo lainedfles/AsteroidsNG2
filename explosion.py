@@ -18,8 +18,8 @@ class Explosion(pygame.sprite.Sprite):
         self.radius_frame = radius / frames_total
 
     def update(self, dt, volume):
-        self.counter += 1
-        self.frames -= 1
+        self.counter += dt
+        self.frames -= dt
         self.radius -= self.radius_frame
 
         if self.counter >= 2:

@@ -2,6 +2,7 @@
 
 import asyncio
 import pygame
+import sys
 from constants import *
 from explosion import Explosion
 from asteroid import Asteroid
@@ -221,6 +222,10 @@ async def main():
                     score = 0
                     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
                 if keys[pygame.K_t]:
+                    if sys.platform == "emscripten":
+                        pygame.display.quit()
+                        pygame.quit()
+                        sys.exit()
                     return
 
         screen.fill(pygame.Color("black"))

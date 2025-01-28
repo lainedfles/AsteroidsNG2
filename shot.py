@@ -8,7 +8,7 @@ class Shot(CircleShape):
         self.x = x
         self.y = y
         self.radius = radius
-        self.expiration = 20
+        self.expiration = 0.8
 
     def draw(self, screen, enable_graphics):
         width = 2
@@ -17,7 +17,7 @@ class Shot(CircleShape):
         pygame.draw.circle(screen, pygame.Color("yellow"), self.position, self.radius, width)
 
     def update(self, dt, volume):
-        self.expiration -= 1
+        self.expiration -= dt
         if self.expiration <= 0:
             self.kill()
         else:
