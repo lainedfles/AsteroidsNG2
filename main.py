@@ -24,6 +24,7 @@ async def main():
     time_elapsed = 0
     old_time_elapsed = 0
     volume = 0.20
+    death_count = 0
 
     global enable_background, enable_graphics, enable_music, enable_sounds
     global enable_help, game_over, music_playing, pause_game, paused, game_name
@@ -266,6 +267,7 @@ async def main():
                     player.kill()
                     asteroid.split()
                     game_over = True
+                    death_count += 1
 
                 for bullet in shots:
                     if asteroid.collision(bullet):
@@ -279,7 +281,8 @@ async def main():
                         asteroid.split()
                         bullet.kill()
         elif pause_game and paused:
-            display_text((f"PAUSED", pygame.Color("red"), 85), [(f"Time elapsed: {round(time_elapsed)}", pygame.Color("gray50"), round(85 * 0.6))])
+            display_text((f"PAUSED", pygame.Color("red"), 85), [(f"Time elapsed: {round(time_elapsed)}", pygame.Color("gray50"), round(85 * 0.6)),
+                                                                (f"Death count: {death_count}", pygame.Color("crimson"), round(85 * 0.6)),])
 
         if game_over and not pause_game:
             score_status = [(f"Lasted for {round(time_elapsed)} seconds...", pygame.Color("gray70"), round(85 * 0.6))]
@@ -295,6 +298,8 @@ async def main():
                 score_status.append((f"You've failed to reach the high score, try again!", pygame.Color("darkred"), round(85 * 0.6)))
 
             display_text((f"GAME OVER!", pygame.Color("red"), 85), score_status + [(f"", pygame.Color("black"), round(85 * 0.6)),
+                                                                                   (f"{death_count} deaths", pygame.Color("crimson"), round(85 * 0.6)),
+                                                                                   (f"", pygame.Color("black"), round(85 * 0.6)),
                                                                                    (f"Use the 'n' key to begin a new game", pygame.Color("gray50"), round(85 * 0.6)),
                                                                                    (f"or", pygame.Color("gray40"), round(85 * 0.6)),
                                                                                    (f"use the 't' key to terminate (exit) the game", pygame.Color("gray50"), round(85 * 0.6))])
