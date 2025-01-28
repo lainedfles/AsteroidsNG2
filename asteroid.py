@@ -54,7 +54,7 @@ class Asteroid(CircleShape):
         split2a = Asteroid(self.position.x, self.position.y, self.radius - ASTEROID_MIN_RADIUS)
         split2a.velocity = pygame.Vector2(self.velocity).rotate(-random_angle) * 1.2
 
-    def update(self, dt):
+    def update(self, dt, volume):
         self.position.x %= SCREEN_WIDTH
         self.position.y %= SCREEN_HEIGHT
         self.position += self.velocity * dt
