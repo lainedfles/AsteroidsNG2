@@ -14,54 +14,59 @@ from shot import Shot
 enable_background = enable_graphics = enable_music = enable_sounds = True
 enable_help = game_over = music_playing = pause_game = paused = False
 game_name = f"AsteroidsNG2"
+dt = 0
+high_score = 0
+old_high_score = 0
+score = 0
+old_score = 0
+time_elapsed = 0
+old_time_elapsed = 0
+volume = 0.20
+death_count = 0
+
+pygame.init()
+pygame.mixer.init(11025)
+pygame.display.set_icon(pygame.image.load("img/favicon.png"))
+pygame.display.set_caption(game_name)
+
+asteroids = pygame.sprite.Group()
+drawable = pygame.sprite.Group()
+explosions = pygame.sprite.Group()
+updatable = pygame.sprite.Group()
+shots = pygame.sprite.Group()
+
+clock = pygame.time.Clock()
+
+background_img = pygame.image.load("img/asteroids_background.jpg")
+
+explosion_sfx = pygame.mixer.Sound("sfx/ExploLowFireDest SDT2021805.ogg")
+music = pygame.mixer.music.load("sfx/Short Space Casual Loop #3.ogg")
+ship_explosion_sfx = pygame.mixer.Sound("sfx/ExploSciFiPipeEx SDT2020802.ogg")
+sounds = [explosion_sfx, ship_explosion_sfx]
+
+pygame.mixer.Sound.set_volume(explosion_sfx, volume)
+pygame.mixer.music.set_volume(volume)
+pygame.mixer.Sound.set_volume(ship_explosion_sfx, volume)
+
+Asteroid.containers = (asteroids, updatable, drawable)
+AsteroidField.containers = (updatable)
+Explosion.containers = (updatable, drawable)
+Player.containers = (updatable, drawable)
+Shot.containers = (shots, updatable, drawable)
+
+asteroidfield = AsteroidField()
+player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 
 async def main():
-    dt = 0
-    high_score = 0
-    old_high_score = 0
-    score = 0
-    old_score = 0
-    time_elapsed = 0
-    old_time_elapsed = 0
-    volume = 0.20
-    death_count = 0
 
     global enable_background, enable_graphics, enable_music, enable_sounds
     global enable_help, game_over, music_playing, pause_game, paused, game_name
-
-    pygame.init()
-    pygame.mixer.init(11025)
-    pygame.display.set_icon(pygame.image.load("img/favicon.png"))
-    pygame.display.set_caption(game_name)
-
-    asteroids = pygame.sprite.Group()
-    drawable = pygame.sprite.Group()
-    explosions = pygame.sprite.Group()
-    updatable = pygame.sprite.Group()
-    shots = pygame.sprite.Group()
-
-    clock = pygame.time.Clock()
-
-    background_img = pygame.image.load("img/asteroids_background.jpg")
-
-    explosion_sfx = pygame.mixer.Sound("sfx/ExploLowFireDest SDT2021805.ogg")
-    music = pygame.mixer.music.load("sfx/Short Space Casual Loop #3.ogg")
-    ship_explosion_sfx = pygame.mixer.Sound("sfx/ExploSciFiPipeEx SDT2020802.ogg")
-    sounds = [explosion_sfx, ship_explosion_sfx]
-
-    pygame.mixer.Sound.set_volume(explosion_sfx, volume)
-    pygame.mixer.music.set_volume(volume)
-    pygame.mixer.Sound.set_volume(ship_explosion_sfx, volume)
-
-    Asteroid.containers = (asteroids, updatable, drawable)
-    AsteroidField.containers = (updatable)
-    Explosion.containers = (updatable, drawable)
-    Player.containers = (updatable, drawable)
-    Shot.containers = (shots, updatable, drawable)
-
-    asteroidfield = AsteroidField()
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    global dt, high_score, old_high_score, score, old_score, time_elapsed
+    global old_time_elapsed, volume, death_count, asteroids, drawable, explosions
+    global updatable, shots, clock, background_img, explosion_sfx, music
+    global ship_explosion_sfx, sounds, asteroidfield, player, screen
 
 
     print(f"Starting {game_name}!")
@@ -169,14 +174,15 @@ async def main():
                     enable_graphics = not enable_graphics
                     enable_background = enable_graphics
                 if keys[pygame.K_h]:
-                    pause_game = not pause_game
-                    enable_help = pause_game
-                    if pause_game:
-                        pygame.mixer.music.pause()
-                        pygame.mixer.pause()
-                    else:
-                        pygame.mixer.music.unpause()
-                        pygame.mixer.unpause()
+                    if not game_over and not paused:
+                        pause_game = not pause_game
+                        enable_help = pause_game
+                        if pause_game:
+                            pygame.mixer.music.pause()
+                            pygame.mixer.pause()
+                        else:
+                            pygame.mixer.music.unpause()
+                            pygame.mixer.unpause()
                 if keys[pygame.K_m]:
                     enable_music = not enable_music
                     if not enable_music:
@@ -188,14 +194,15 @@ async def main():
                     if not enable_background:
                         pygame.mixer.stop()
                 if keys[pygame.K_p]:
-                    pause_game = not pause_game
-                    paused = pause_game
-                    if pause_game:
-                        pygame.mixer.music.pause()
-                        pygame.mixer.pause()
-                    else:
-                        pygame.mixer.music.unpause()
-                        pygame.mixer.unpause()
+                    if not game_over and not enable_help:
+                        pause_game = not pause_game
+                        paused = pause_game
+                        if pause_game:
+                            pygame.mixer.music.pause()
+                            pygame.mixer.pause()
+                        else:
+                            pygame.mixer.music.unpause()
+                            pygame.mixer.unpause()
                 if keys[pygame.K_n]:
                     old_score = score
                     old_high_score = high_score
@@ -219,6 +226,8 @@ async def main():
                     Shot.containers = (shots, updatable, drawable)
 
                     asteroidfield = AsteroidField()
+                    AsteroidField.asteroid_count = 0
+                    #Asteroid.asteroids = []
                     dt = 0
                     score = 0
                     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
@@ -268,6 +277,7 @@ async def main():
                     asteroid.split()
                     game_over = True
                     death_count += 1
+                    
 
                 for bullet in shots:
                     if asteroid.collision(bullet):
