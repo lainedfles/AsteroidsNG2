@@ -1,5 +1,6 @@
 import pygame
 
+
 # Base class for game objects
 class CircleShape(pygame.sprite.Sprite):
     def __init__(self, x, y, radius):
@@ -13,7 +14,7 @@ class CircleShape(pygame.sprite.Sprite):
         self.velocity = pygame.Vector2(0, 0)
         self.radius = radius
 
-    def collision(self, object: 'CircleShape'):
+    def collision(self, object: "CircleShape"):
         combined_radius = self.radius + object.radius
         distance = self.position.distance_to(object.position)
         if distance <= combined_radius:

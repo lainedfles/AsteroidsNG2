@@ -12,9 +12,7 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
         [
             pygame.Vector2(-1, 0),
-            lambda y: pygame.Vector2(
-                SCREEN_WIDTH + ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT
-            ),
+            lambda y: pygame.Vector2(SCREEN_WIDTH + ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT),
         ],
         [
             pygame.Vector2(0, 1),
@@ -22,13 +20,13 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
         [
             pygame.Vector2(0, -1),
-            lambda x: pygame.Vector2(
-                x * SCREEN_WIDTH, SCREEN_HEIGHT + ASTEROID_MAX_RADIUS
-            ),
+            lambda x: pygame.Vector2(x * SCREEN_WIDTH, SCREEN_HEIGHT + ASTEROID_MAX_RADIUS),
         ],
     ]
 
     asteroid_count = 0
+    asteroid_max_spawn = ASTEROID_SPAWN
+    asteroid_spawn_rate = ASTEROID_SPAWN_RATE
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
@@ -40,7 +38,7 @@ class AsteroidField(pygame.sprite.Sprite):
 
     def update(self, dt, volume):
         self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE and AsteroidField.asteroid_count < ASTEROID_MAX_SPAWN:
+        if self.spawn_timer > AsteroidField.asteroid_spawn_rate and AsteroidField.asteroid_count < AsteroidField.asteroid_max_spawn:
             self.spawn_timer = 0
             AsteroidField.asteroid_count += 1
 

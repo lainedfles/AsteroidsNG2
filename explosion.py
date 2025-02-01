@@ -1,12 +1,13 @@
 import pygame
+from circleshape import CircleShape
 
-class Explosion(pygame.sprite.Sprite):
+class Explosion(CircleShape):
     def __init__(self, x, y, color_list=[pygame.Color("lightyellow"),
-                                    pygame.Color("lightyellow1"),
-                                    pygame.Color("lightyellow2"),
-                                    pygame.Color("lightyellow3"),
-                                    pygame.Color("lightyellow4")], radius=60):
-        pygame.sprite.Sprite.__init__(self, self.containers)
+                                         pygame.Color("lightyellow1"),
+                                         pygame.Color("lightyellow2"),
+                                         pygame.Color("lightyellow3"),
+                                         pygame.Color("lightyellow4")], radius=60):
+        super().__init__(x, y, radius)
         frames_total = 10
         self.color = color_list[0]
         self.color_list = color_list
