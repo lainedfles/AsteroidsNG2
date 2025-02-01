@@ -49,6 +49,12 @@ shields_down_sfx = pygame.mixer.Sound("sfx/AccentElements PET04_58_8.ogg")
 ship_explosion_sfx = pygame.mixer.Sound("sfx/ExploSciFiPipeEx SDT2020802.ogg")
 sounds = [shields_up_sfx, shields_down_sfx, explosion_sfx, ship_explosion_sfx]
 
+music_list = ["sfx/Short Space Casual Loop #3.ogg",
+              "sfx/Orchestral Loop #4.ogg",
+              "sfx/Loop #3.ogg",
+              "sfx/Space Casual Theme #2 (looped).ogg"]
+selected_music = music_list[0]
+
 for sound in sounds:
     pygame.mixer.Sound.set_volume(sound, volume)
 
@@ -68,9 +74,10 @@ async def main():
     global old_time_elapsed, volume, death_count, asteroids, drawable, explosions
     global updatable, shots, clock, background_img, explosion_sfx, music, ship_explosion_sfx
     global sounds, asteroidfield, player, screen, level, shields_up, shields_cooldown
+    global music_list, selected_music
 
     asteroidfield = AsteroidField()
-    music = pygame.mixer.music.load("sfx/Short Space Casual Loop #3.ogg")
+    music = pygame.mixer.music.load(selected_music)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -80,6 +87,21 @@ async def main():
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
     print("Press 't' to terminate (exit)...")
+
+    def change_music(direction):
+        global music_list, selected_music
+        if direction == "left":
+            music_index = music_list.index(selected_music) - 1
+            if music_index < 0:
+                music_index = len(music_list) - 1
+            selected_music = music_list[music_index]
+        if direction == "right":
+            music_index = music_list.index(selected_music) + 1
+            if music_index > len(music_list) - 1:
+                music_index = 0
+            selected_music = music_list[music_index]
+        pygame.mixer.music.load(selected_music)
+        pygame.mixer.music.play()
 
     def display_text(input1, input2=[]):
         blits = []
@@ -181,6 +203,10 @@ async def main():
                     pygame.mixer.music.set_volume(volume)
                     for sound in sounds:
                         pygame.mixer.Sound.set_volume(sound, volume)
+                if keys[pygame.K_LEFTBRACKET]:
+                    change_music("left")
+                if keys[pygame.K_RIGHTBRACKET]:
+                    change_music("right")
                 if keys[pygame.K_F1]:
                     enable_debug = not enable_debug
                 if keys[pygame.K_b]:
@@ -228,6 +254,7 @@ async def main():
                     debug = enable_debug
                     player_ship = Player.ship
                     player_ship_color = Player.ship_color
+                    select_music = selected_music
 
                     del asteroids, drawable, updatable
                     del shots, asteroidfield, player
@@ -264,6 +291,7 @@ async def main():
                     Player.boost_cooldown = PLAYER_SPEED_BOOST_COOLDOWN
                     Player.ship = player_ship
                     Player.ship_color = player_ship_color
+                    selected_music = select_music
                     enable_debug = debug
                 if keys[pygame.K_t]:
                     if sys.platform == "emscripten":
@@ -425,19 +453,20 @@ async def main():
             display_text(
                 (f"KEY CONTROLS", pygame.Color("red"), 85),
                 [
-                    (f"[w|a|s|d]: ship movement", pygame.Color("gray70"), round(85 * 0.5)),
-                    (f"shift: ship boost", pygame.Color("gray70"), round(85 * 0.5)),
-                    (f"space: fire ship blaster", pygame.Color("gray70"), round(85 * 0.5)),
+                    (f"w|a|s|d ship movement", pygame.Color("gray70"), round(85 * 0.5)),
+                    (f"shift ship boost", pygame.Color("gray70"), round(85 * 0.5)),
+                    (f"space fire ship blaster", pygame.Color("gray70"), round(85 * 0.5)),
                     (f"", pygame.Color("black"), 20),
-                    (f"[-|+]: set volume level", pygame.Color("gray"), round(85 * 0.5)),
-                    (f"[,|.]: change ship appearance", pygame.Color("gray65"), round(85 * 0.5)),
-                    (f"b: toggle background image", pygame.Color("gray50"), round(85 * 0.5)),
-                    (f"g: toggle graphics for a retro look", pygame.Color("gray50"), round(85 * 0.5)),
-                    (f"h: display this screen", pygame.Color("gray50"), round(85 * 0.5)),
-                    (f"m: toggle music", pygame.Color("gray50"), round(85 * 0.5)),
-                    (f"k: toggle sound effects", pygame.Color("gray50"), round(85 * 0.5)),
-                    (f"n: new game", pygame.Color("gray"), round(85 * 0.5)),
-                    (f"t: terminate (exit) game", pygame.Color("gray"), round(85 * 0.5)),
+                    (f"-|+ set volume level", pygame.Color("gray"), round(85 * 0.5)),
+                    (f",|. change ship appearance", pygame.Color("gray65"), round(85 * 0.5)),
+                    (f"[|] select music track", pygame.Color("gray"), round(85 * 0.5)),
+                    (f"b toggle background image", pygame.Color("gray50"), round(85 * 0.5)),
+                    (f"g toggle graphics for a retro look", pygame.Color("gray50"), round(85 * 0.5)),
+                    (f"h display this screen", pygame.Color("gray50"), round(85 * 0.5)),
+                    (f"m toggle music", pygame.Color("gray50"), round(85 * 0.5)),
+                    (f"k toggle sound effects", pygame.Color("gray50"), round(85 * 0.5)),
+                    (f"n new game", pygame.Color("gray"), round(85 * 0.5)),
+                    (f"t terminate (exit) game", pygame.Color("gray"), round(85 * 0.5)),
                 ],
             )
 
