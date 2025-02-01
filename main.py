@@ -89,7 +89,7 @@ async def main():
     print("Press 't' to terminate (exit)...")
 
     def change_music(direction):
-        global music_list, selected_music
+        global music_list, selected_music, volume
         if direction == "left":
             music_index = music_list.index(selected_music) - 1
             if music_index < 0:
@@ -101,6 +101,7 @@ async def main():
                 music_index = 0
             selected_music = music_list[music_index]
         pygame.mixer.music.load(selected_music)
+        pygame.mixer.music.set_volume(volume)
         pygame.mixer.music.play()
 
     def display_text(input1, input2=[]):
