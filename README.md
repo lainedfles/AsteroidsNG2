@@ -3,8 +3,8 @@ This is a runaway project created as part of the [pygame](https://github.com/pyg
 
 ![asteroidsng2](https://github.com/user-attachments/assets/20d74d47-9680-4adf-abc1-347ea4ccdb62)
 
-### Usage
-![asteroidsng2_usage](https://github.com/user-attachments/assets/8e543367-9397-40e3-8964-527b95dbcd00)
+### Key Controls
+![asteroidsng2_usage](https://github.com/user-attachments/assets/f72c3849-c99e-49c9-a0ed-c2412ab97d28)
 
 ### Pygame-web (recommended)
 Thanks to [pygame-web](https://pygame-web.github.io/) and [pygbag](https://github.com/pygame-web/pygbag) it's playable from modern browsers! It's available here:
